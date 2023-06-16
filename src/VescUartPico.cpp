@@ -5,12 +5,27 @@
 #include "pico/time.h"
 #include "VescUartPico.h"
 
-VescUartPico::VescUartPico(uint32_t timeout_ms, uart_inst_t *serialPort, uint baud, uint pinTX, uint pinRX) : _TIMEOUT(timeout_ms) {
+// no debug port
+VescUartPico::VescUartPico(uint32_t timeout_ms, uart_inst_t *serialPort, 
+				uint baud, uint pinTX, uint pinRX) : _TIMEOUT(timeout_ms) {
 	uart_init(serialPort, baud);	// init serial port
 	gpio_set_function(pinTX, GPIO_FUNC_UART);	// init pins
 	gpio_set_function(pinRX, GPIO_FUNC_UART);
 
 	uartPort = serialPort;
+	debug = false;
+}
+
+// debug port
+VescUartPico::VescUartPico(uint32_t timeout_ms, uart_inst_t *serialPort, 
+				uart_inst_t *debugPort, uint baud, uint pinTX, uint pinRX, uint debugTx, uint debugRx) : _TIMEOUT(timeout_ms) {
+	uart_init(serialPort, baud);	// init serial port
+	gpio_set_function(pinTX, GPIO_FUNC_UART);	// init pins
+	gpio_set_function(pinRX, GPIO_FUNC_UART);
+
+	uartPort = serialPort;
+	stdio_uart_init_full(debugPort, 115200, debugTx, debugRx);
+	debug = true;
 }
 
 bool VescUartPico::getFWversion(void) {
@@ -43,6 +58,10 @@ bool VescUartPico::getVescTelemetry(void) {
 }
 
 bool VescUartPico::getVescTelemetry(uint8_t canId) {
+	if (debug){
+		printf("Command: COMM_GET_VALUES %d", canId);
+	}
+
     int32_t index = 0;
 	int payloadSize = (canId == 0 ? 1 : 3);
 	uint8_t payload[payloadSize];
@@ -175,8 +194,8 @@ int VescUartPico::packSendPayload(uint8_t *payload, int length) {
 	messageSend[count++] = 3;
 	// messageSend[count] = NULL;
 	
-	if(uart_is_enabled(debugPort)){
-		debugPort->print("Package to send: "); serialPrint(messageSend, count);
+	if(debug){
+		printf("Package to send: "); serialPrint(messageSend, count);
 	}
 
 	// Sending package
@@ -221,14 +240,14 @@ int VescUartPico::receivePayload(uint8_t *payload) {
 
 					case 3:
 						// ToDo: Add Message Handling > 255 (starting with 3)
-						if(uart_is_enabled(debugPort)){
-							debugPort->println("Message is larger than 256 bytes - not supported");
+						if(debug){
+							printf("Message is larger than 256 bytes - not supported\n");
 						}
 					break;
 
 					default:
-						if(uart_is_enabled(debugPort)){
-							debugPort->println("Invalid start bit");
+						if(debug){
+							printf("Invalid start bit\n");
 						}
 					break;
 				}
@@ -240,16 +259,16 @@ int VescUartPico::receivePayload(uint8_t *payload) {
 
 			if (counter == endMessage && messageReceived[endMessage - 1] == 3) {
 				messageReceived[endMessage] = 0;
-				if (uart_is_enabled(debugPort)) {
-					debugPort->println("End of message reached!");
+				if (debug) {
+					printf("End of message reached!\n");
 				}
 				messageRead = true;
 				break; // Exit if end of message is reached, even if there is still more data in the buffer.
 			}
 		}
 	}
-	if(messageRead == false && uart_is_enabled(debugPort)) {
-		debugPort->println("Timeout");
+	if(messageRead == false && debug) {
+		printf("Timeout\n");
 	}
 	
 	bool unpacked = false;
@@ -277,8 +296,8 @@ bool VescUartPico::unpackPayload(uint8_t *unpackedPayload, int length, uint8_t *
 	crcMessage &= 0xFF00;
 	crcMessage += unpackedPayload[length - 2];
 
-	if(uart_is_enabled(debugPort)){
-		debugPort->print("CRC received: "); debugPort->println(crcMessage);
+	if(debug){
+		printf("CRC received: %d", crcMessage);
 	}
 
 	// Extract payload:
@@ -286,17 +305,17 @@ bool VescUartPico::unpackPayload(uint8_t *unpackedPayload, int length, uint8_t *
 
 	crcPayload = crc16(payload, unpackedPayload[1]);
 
-	if(uart_is_enabled(debugPort)){
-		debugPort->print("CRC calc: "); debugPort->println(crcPayload);
+	if(debug){
+		printf("CRC calc: %d", crcPayload);
 	}
 	
 	if (crcPayload == crcMessage) {
-		if(uart_is_enabled(debugPort)) {
-			debugPort->print("Received: "); 
-			serialPrint(unpackedPayload, length); debugPort->println();
+		if(debug) {
+			printf("Received: "); 
+			serialPrint(unpackedPayload, length); printf("\n");
 
-			debugPort->print("Payload :      ");
-			serialPrint(payload, unpackedPayload[1] - 1); debugPort->println();
+			printf("Payload :      ");
+			serialPrint(payload, unpackedPayload[1] - 1); printf("\n");
 		}
 
 		return true;
@@ -350,5 +369,15 @@ bool VescUartPico::processPayload(uint8_t *payload) {
 		default:
 			return false;
 		break;
+	}
+}
+
+void VescUartPico::serialPrint(uint8_t * data, int len) {
+	if(debug){
+		for (int i = 0; i <= len; i++)
+		{
+			printf("%d ", data[i]);
+		}
+		printf("\n");
 	}
 }

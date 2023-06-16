@@ -35,7 +35,10 @@ class VescUartPico {
 
     public:
         // CONSTRUCTOR
+        // debugging disabled
         VescUartPico(uint32_t timeout_ms, uart_inst_t *serialPort, uint baud, uint pinTX, uint pinRX);
+        // debugging enabled
+        VescUartPico(uint32_t timeout_ms, uart_inst_t *serialPort, uart_inst_t *debug, uint baud, uint pinTX, uint pinRX, uint debugTx, uint debugRx);
 
         // FIELDS
         dataPackage data;   // field to hold returned telemetry
@@ -86,7 +89,7 @@ class VescUartPico {
 
     private:
         uart_inst_t *uartPort;  // uart instance
-        uart_inst_t *debugPort;
+        bool debug;
 
         // packs and sends payload over serial
         int packSendPayload(uint8_t *payload, int length);
@@ -99,6 +102,9 @@ class VescUartPico {
 
         // process payload and extract data
         bool processPayload(uint8_t *payload);
+
+        // helper for printing arrays
+        void serialPrint(uint8_t * data, int len);
 };
 
 #endif
