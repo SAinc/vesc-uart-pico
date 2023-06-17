@@ -4,6 +4,11 @@
 #include "datatypes.h"
 #include "buffer.h"
 #include "crc.h"
+#include <stdint.h>
+#include <stdio.h>
+#include <cstring>
+#include "pico/stdlib.h"
+#include "pico/time.h"
 
 class VescUartPico {
     /** Struct to store the telemetry data returned by the VESC */

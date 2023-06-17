@@ -1,8 +1,3 @@
-#include <stdint.h>
-#include <stdio.h>
-#include <cstring>
-#include "pico/stdlib.h"
-#include "pico/time.h"
 #include "VescUartPico.h"
 
 // no debug port
