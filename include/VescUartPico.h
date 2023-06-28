@@ -7,8 +7,9 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <cstring>
-#include "pico/stdlib.h"
-#include "pico/time.h"
+#include <pico/stdlib.h>
+#include <pico/time.h>
+#include <pico/stdio.h>
 
 class VescUartPico {
     /** Struct to store the telemetry data returned by the VESC */
