@@ -41,8 +41,8 @@ class VescUartPico {
 
     public:
         // CONSTRUCTOR
-        // debugging disabled
-        VescUartPico(uint32_t timeout_ms, uart_inst_t *serialPort, uint baud, uint pinTX, uint pinRX);
+        // debugging over USB
+        VescUartPico(uint32_t timeout_ms, uart_inst_t *serialPort, uint baud, uint pinTX, uint pinRX, bool debug);
         // debugging enabled
         VescUartPico(uint32_t timeout_ms, uart_inst_t *serialPort, uart_inst_t *debug, uint baud, uint pinTX, uint pinRX, uint debugTx, uint debugRx);
 

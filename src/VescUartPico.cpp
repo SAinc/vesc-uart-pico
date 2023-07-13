@@ -1,17 +1,22 @@
 #include "VescUartPico.h"
+#include "pico/stdio_usb.h"
 
-// no debug port
+// Debug USB
 VescUartPico::VescUartPico(uint32_t timeout_ms, uart_inst_t *serialPort, 
-				uint baud, uint pinTX, uint pinRX) : _TIMEOUT(timeout_ms) {
+				uint baud, uint pinTX, uint pinRX, bool debug) : _TIMEOUT(timeout_ms) {
 	uart_init(serialPort, baud);	// init serial port
 	gpio_set_function(pinTX, GPIO_FUNC_UART);	// init pins
 	gpio_set_function(pinRX, GPIO_FUNC_UART);
 
+	if (debug) {
+		stdio_usb_init();
+	}
+
 	uartPort = serialPort;
-	debug = false;
+	this->debug = debug;
 }
 
-// debug port
+// debug port serial
 VescUartPico::VescUartPico(uint32_t timeout_ms, uart_inst_t *serialPort, 
 				uart_inst_t *debugPort, uint baud, uint pinTX, uint pinRX, uint debugTx, uint debugRx) : _TIMEOUT(timeout_ms) {
 	uart_init(serialPort, baud);	// init serial port
