@@ -17,7 +17,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     */
 
-#include "crc.h"
+#include "../include/crc.h"
 #ifndef NO_STM32
 //#include "stm32f4xx.h"	We're not using an stm32
 #endif

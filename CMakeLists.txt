@@ -14,4 +14,4 @@ target_link_libraries(vesc-uart-pico
     INTERFACE
         pico_stdlib
         pico_time
-        pico_stdio_uart)
+        pico_stdio_usb)

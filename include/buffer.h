@@ -20,6 +20,10 @@
 #ifndef BUFFER_H_
 #define BUFFER_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #include <stdint.h>
 
 void buffer_append_int16(uint8_t* buffer, int16_t number, int32_t *index);
@@ -45,5 +49,9 @@ float buffer_get_float32(const uint8_t *buffer, float scale, int32_t *index);
 double buffer_get_double64(const uint8_t *buffer, double scale, int32_t *index);
 float buffer_get_float32_auto(const uint8_t *buffer, int32_t *index);
 double buffer_get_float64_auto(const uint8_t *buffer, int32_t *index);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* BUFFER_H_ */

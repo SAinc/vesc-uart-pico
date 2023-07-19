@@ -1,5 +1,5 @@
 #include "VescUartPico.h"
-#include "pico/stdio_usb.h"
+#include "pico/stdio.h"
 
 // Debug USB
 VescUartPico::VescUartPico(uint32_t timeout_ms, uart_inst_t *serialPort, 
@@ -14,18 +14,6 @@ VescUartPico::VescUartPico(uint32_t timeout_ms, uart_inst_t *serialPort,
 
 	uartPort = serialPort;
 	this->debug = debug;
-}
-
-// debug port serial
-VescUartPico::VescUartPico(uint32_t timeout_ms, uart_inst_t *serialPort, 
-				uart_inst_t *debugPort, uint baud, uint pinTX, uint pinRX, uint debugTx, uint debugRx) : _TIMEOUT(timeout_ms) {
-	uart_init(serialPort, baud);	// init serial port
-	gpio_set_function(pinTX, GPIO_FUNC_UART);	// init pins
-	gpio_set_function(pinRX, GPIO_FUNC_UART);
-
-	uartPort = serialPort;
-	stdio_uart_init_full(debugPort, 115200, debugTx, debugRx);
-	debug = true;
 }
 
 bool VescUartPico::getFWversion(void) {

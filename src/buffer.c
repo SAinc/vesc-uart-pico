@@ -17,7 +17,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
     */
 
-#include "buffer.h"
+#include "../include/buffer.h"
 #include <math.h>
 #include <stdbool.h>
 
