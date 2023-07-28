@@ -4,16 +4,21 @@
 // Debug USB
 VescUartPico::VescUartPico(uint32_t timeout_ms, uart_inst_t *serialPort, 
 				uint baud, uint pinTX, uint pinRX, bool debug) : _TIMEOUT(timeout_ms) {
-	uart_init(serialPort, baud);	// init serial port
-	gpio_set_function(pinTX, GPIO_FUNC_UART);	// init pins
-	gpio_set_function(pinRX, GPIO_FUNC_UART);
+	uartPort = serialPort;
+	baudrate = baud;
+	tx = pinTX;
+	rx = pinRX;
+	this->debug = debug;
+}
+
+void VescUartPico::init() {
+	uart_init(uartPort, baudrate);	// init serial port
+	gpio_set_function(tx, GPIO_FUNC_UART);	// init pins
+	gpio_set_function(rx, GPIO_FUNC_UART);
 
 	if (debug) {
 		stdio_usb_init();
 	}
-
-	uartPort = serialPort;
-	this->debug = debug;
 }
 
 bool VescUartPico::getFWversion(void) {
@@ -187,8 +192,9 @@ int VescUartPico::packSendPayload(uint8_t *payload, int length) {
 	}
 
 	// Sending package
-	if(uart_is_enabled(uartPort))
+	if(uart_is_enabled(uartPort)){
 		uart_write_blocking(uartPort, messageSend, count);
+	}
 
 	// Returns number of send bytes
 	return count;
@@ -199,7 +205,7 @@ int VescUartPico::receivePayload(uint8_t *payload) {
 	// Messages > 255 starts with "3" 2nd and 3rd byte is length combined with 1st >>8 and then &0xFF
 
 	// Makes no sense to run this function if no serialPort is defined.
-	if (uart_is_enabled(uartPort))
+	if (!uart_is_enabled(uartPort))
 		return -1;
 
 	uint16_t counter = 0;
@@ -214,8 +220,7 @@ int VescUartPico::receivePayload(uint8_t *payload) {
 
 		while (uart_is_readable(uartPort)) {
 
-			counter++;
-			uart_read_blocking(uartPort, messageReceived, 1);
+			uart_read_blocking(uartPort, &messageReceived[counter++], 1);
 
 			if (counter == 2) {
 

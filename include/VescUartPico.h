@@ -49,6 +49,9 @@ class VescUartPico {
         FWversionPackage fw_version; // field to hold fw version
         
         // METHODS
+        // init connection
+        void init();
+        
         // get fw version from connected controller
         bool getFWversion(void);
 
@@ -94,6 +97,10 @@ class VescUartPico {
     private:
         uart_inst_t *uartPort;  // uart instance
         bool debug;
+        uint tx;
+        uint rx;
+        uint baudrate;
+
 
         // packs and sends payload over serial
         int packSendPayload(uint8_t *payload, int length);
